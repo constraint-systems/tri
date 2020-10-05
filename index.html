@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Tri</title>
+
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,shrink-to-fit=no"
+    />
+
+    <meta name="theme-color" content="#cccccc" />
+    <meta
+      name="description"
+      content="Tri is an experimental image distorter. You can choose an image to render using a WebGL quad, adjust the texture and position coordinates to create different distortions, and save the result."
+    />
+    <meta property="og:title" content="Tri" />
+    <meta
+      property="og:description"
+      content="Tri is an experimental image distorter. You can choose an image to render using a WebGL quad, adjust the texture and position coordinates to create different distortions, and save the result."
+    />
+    <meta
+      property="og:image"
+      content="https://tile.constraint.systems/tri.png"
+    />
+    <meta property="og:url" content="https://tri.constraint.systems" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="stylesheet" href="font.css" />
+    <link rel="stylesheet" href="style.css" />
+    <!-- vertex shader -->
+    <script id="vertex-shader-2d" type="x-shader/x-vertex">
+      attribute vec2 a_position;
+      attribute vec2 a_texCoord;
+
+      varying vec2 v_texCoord;
+
+      void main() {
+       // convert from 0->1 to 0->2
+        vec2 zeroToTwo = a_position * 2.0;
+        // convert from 0->2 to -1->+1 (clipspace)
+        vec2 clipSpace = zeroToTwo - 1.0;
+
+        gl_Position = vec4(clipSpace * vec2(1,-1), 0, 1);
+
+        v_texCoord = a_texCoord;
+      }
+    </script>
+    <!-- fragment shader -->
+    <script id="fragment-shader-2d" type="x-shader/x-fragment">
+      precision mediump float;
+
+      // our texture
+      uniform sampler2D u_image;
+
+      // the texCoords passed in from the vertex shader
+      varying vec2 v_texCoord;
+
+      void main() {
+        gl_FragColor = texture2D(u_image, v_texCoord);
+      }
+    </script>
+    <script src="webgl-utils.js"></script>
+    <script src="app.js" type="module"></script>
+  </head>
+  <body>
+    <input
+      id="file_input"
+      type="file"
+      accept="image/*"
+      style="display: none;"
+    />
+    <div id="tile0" class="tile">
+      <div class="tile_bar">
+        <div class="tile_bar_left">
+          <div onclick="loadImage()" role="button">
+            <span class="short">o</span>Load image
+          </div>
+        </div>
+      </div>
+      <div class="tile_scroller">
+        <div class="tile_content">
+          <div>
+            <canvas
+              id="ui"
+              style="border-bottom: solid 32px transparent;"
+            ></canvas>
+          </div>
+        </div>
+      </div>
+      <div
+        style="position: absolute; bottom: 1px; left: 0; display: flex; border-top: solid 1px black; border-right: solid 1px black; z-index: 88; background: #eee;"
+      >
+        <div onclick="reset()" role="button">
+          <span class="short">r</span>Reset
+        </div>
+        <div style="padding: 8px;">
+          <div class="marker" style="background: magenta;"></div>
+          <span>Texture</span>
+        </div>
+        <div style="padding: 8px;">
+          <div class="marker" style="background: limegreen;"></div>
+          <span>Positions</span>
+        </div>
+      </div>
+    </div>
+    <div id="tile1" class="tile">
+      <div class="tile_bar">
+        <div class="tile_bar_left">
+          <div onclick="saveImage()" role="button">
+            <span class="short">p</span>Save as png
+          </div>
+        </div>
+      </div>
+      <div class="tile_scroller">
+        <div class="tile_content">
+          <div>
+            <canvas
+              id="gl"
+              style="border: solid 16px transparent; border-bottom: solid 48px transparent;"
+            ></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      style="position: fixed; right: 0; top: 0; display: flex; border-left: solid 1px black; border-bottom: solid 1px black;"
+    >
+      <div style="padding: 8px; padding-right: 0px;">
+        <span>Zoom:</span>
+      </div>
+      <div
+        style="padding: 8px; padding-left: 0px; width: 6ch; text-align: right;"
+      >
+        <span id="zoom_read">100%</span>
+      </div>
+      <div onclick="zoomIn()" role="button">+</div>
+      <div onclick="zoomOut()" role="button">-</div>
+    </div>
+    <div
+      id="info_box"
+      style="position: fixed; right: 0; bottom: 0; border-left: solid 1px black; border-top: solid 1px black; width: 100%; max-width: 70ch; z-index: 99; padding: 16px; background: #eee;"
+    >
+      <div>
+        Tri is an experimental image distorter. You can choose an image to
+        render using a WebGL quad, adjust the texture and position coordinates
+        to create different distortions, and save the result.
+      </div>
+      <div style="height: 8px; width: 100%"></div>
+      <div>
+        Tri is a result of my efforts to understand WebGL textures. Much of the
+        code is based on
+        <a
+          href="https://webglfundamentals.org/webgl/lessons/webgl-3d-textures.html"
+          target="_blank"
+          >the texture example from WebGL Fundamentals</a
+        >.
+        <div style="height: 16px; width: 100%"></div>
+        <div>
+          <a href="#">Release notes</a> &middot;
+          <a href="#">Video walkthrough</a> &middot;
+          <a href="https://constraint.systems" target="_blank"
+            >Constraint Systems</a
+          >
+        </div>
+      </div>
+      <div style="position: absolute; right: 0; bottom: 0;">
+        <div onclick="closeInfo()" role="button">x</div>
+      </div>
+    </div>
+    <div
+      id="info_opener"
+      style="position: fixed; right: 0; bottom: 0; border-left: solid 1px black; border-top: solid 1px black; z-index: 99; display: none; background: #eee;"
+    >
+      <div onclick="openInfo()" role="button">?</div>
+    </div>
+  </body>
+</html>

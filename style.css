@@ -1,0 +1,96 @@
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: 'JetBrains Mono', 'Consolas', 'Andale Mono WT', 'Andale Mojo',
+    'Lucida Console', 'Lucida Sans Typewriter', 'DejaVu Sans Mono',
+    'Bitstream Vera Sans Mono', 'Liberation Mono', 'Nimbus Mono L', Monaco,
+    'Courier New', Courier, monospace;
+  font-size: 13.333px;
+  line-height: 16px;
+  -webkit-text-size-adjust: none;
+  background: #eee;
+}
+img,
+canvas {
+  display: block;
+  position: relative;
+}
+a {
+  color: inherit;
+}
+
+.tile {
+  position: relative;
+}
+.tile_bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+}
+.tile_bar_left {
+  height: 33px;
+  border-right: solid 1px black;
+  border-bottom: solid 1px black;
+  display: flex;
+  background: #eee;
+}
+.tile_scroller {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding-top: 32px;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+.tile_content {
+  position: relative;
+  z-index: 1;
+}
+.marker {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: pink;
+}
+div[role='button'] {
+  display: inline-block;
+  padding: 8px;
+  /* background: #ddd; */
+  color: #000;
+  text-decoration: underline;
+  cursor: pointer;
+}
+div.active[role='button'],
+div.active[role='button'] span {
+  text-decoration: none;
+}
+.with-marker[role='button'] {
+  text-decoration: none;
+}
+.with-marker span {
+  text-decoration: underline;
+}
+.label {
+  padding: 8px;
+}
+.hspace {
+  width: 8px;
+  height: 100%;
+}
+.short {
+  background: black;
+  color: #eee;
+  padding-left: 0.25ch;
+  padding-right: 0.25ch;
+  margin-right: 1ch;
+}
